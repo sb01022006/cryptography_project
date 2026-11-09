@@ -75,9 +75,42 @@ class PSS(AsymmetricPadding):
         return self._mgf
 
 
-class OAEP(AsymmetricPadding):
-    name = "EME-OAEP"
-    is_quantum_safe = False
+class MLKEM(AsymmetricPadding):
+    name = "ML-KEM-768"
+    is_quantum_safe = True
+
+    def __init__(
+        self,
+        mgf: MGF | None = None,
+        algorithm: hashes.HashAlgorithm | None = None,
+        label: bytes | None = None,
+    ):
+        self._mgf = mgf
+        self._algorithm = algorithm
+        self._label = label
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, MLKEM):
+            return NotImplemented
+
+        return (
+            self._mgf == other._mgf
+            and self._algorithm == other._algorithm
+            and self._label == other._label
+        )
+
+    @property
+    def algorithm(self) -> hashes.HashAlgorithm | None:
+        return self._algorithm
+
+    @property
+    def mgf(self) -> MGF | None:
+        return self._mgf
+
+
+class OAEP(MLKEM):
+    name = "ML-KEM-768"
+    is_quantum_safe = True
 
     def __init__(
         self,
