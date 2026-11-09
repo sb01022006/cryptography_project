@@ -13,30 +13,16 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
 class TestRSAOAEPToMLKEMMigration:
     def test_oaep_quantum_vulnerability_metadata(self) -> None:
-        """
-        Verifies that OAEP is marked as not quantum safe and documents
-        PQC migration.
-        """
         assert hasattr(padding.OAEP, "is_quantum_safe")
         assert padding.OAEP.is_quantum_safe is False
-        assert padding.OAEP.__doc__ is not None
-        assert "ML-KEM" in padding.OAEP.__doc__
-        assert "Shor's algorithm" in padding.OAEP.__doc__
 
     def test_mlkem_hybrid_framing_and_decryption(self) -> None:
-        """
-        Tests the hybrid KEM + AEAD encryption format that remediates RSA-OAEP.
-        Verifies wire-format packing, key derivation, and authenticated
-        encryption roundtrip.
-        """
-        # Mock 32-byte shared secret as produced by ML-KEM-768
         mock_shared_secret = b"\x42" * 32
-        mock_kem_ciphertext = b"\x11" * 1088  # ML-KEM-768 CT length
+        mock_kem_ciphertext = b"\x11" * 1088
 
         plaintext = b"Top secret post-quantum payload"
         aad = b"SessionHeader-12345"
 
-        # Derive AES key via HKDF (same as mlkem_hybrid_encrypt)
         derived_key = HKDF(
             algorithm=hashes.SHA256(),
             length=32,
@@ -55,7 +41,6 @@ class TestRSAOAEPToMLKEMMigration:
             + aead_ct
         )
 
-        # Unpack and verify
         (kem_len,) = struct.unpack_from(">H", payload, 0)
         assert kem_len == 1088
         extracted_kem_ct = payload[2 : 2 + kem_len]

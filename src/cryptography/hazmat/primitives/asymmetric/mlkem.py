@@ -278,23 +278,11 @@ if hasattr(rust_openssl, "mlkem"):
     MLKEM1024PrivateKey.register(rust_openssl.mlkem.MLKEM1024PrivateKey)
 
 
-# ----------------------------------------------------------------------
-# Post-Quantum Hybrid Encryption (Remediation for RSA-OAEP)
-# ----------------------------------------------------------------------
 def mlkem_hybrid_encrypt(
     public_key: MLKEM768PublicKey | MLKEM1024PublicKey,
     plaintext: bytes,
     associated_data: bytes | None = None,
 ) -> bytes:
-    """
-    Quantum-safe drop-in replacement for RSA-OAEP public key encryption.
-
-    Encapsulates a shared secret using ML-KEM, derives an AES-256 key via HKDF,
-    and encrypts the plaintext with AES-256-GCM authenticated encryption.
-
-    Payload format:
-    [2 bytes KEM CT len][KEM CT][12 bytes nonce][AEAD CT + tag]
-    """
     import os
     import struct
 
@@ -327,12 +315,6 @@ def mlkem_hybrid_decrypt(
     payload: bytes,
     associated_data: bytes | None = None,
 ) -> bytes:
-    """
-    Quantum-safe drop-in replacement for RSA-OAEP private key decryption.
-
-    Recovers the shared secret via ML-KEM decapsulation, derives the
-    AES-256 key, and decrypts the authenticated ciphertext with AES-256-GCM.
-    """
     import struct
 
     from cryptography.hazmat.primitives import hashes
