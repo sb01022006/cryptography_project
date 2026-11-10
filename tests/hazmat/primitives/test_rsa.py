@@ -1825,7 +1825,7 @@ class TestRSADecryption:
                 label=None,
             )
         ),
-        skip_message="Does not support OAEP.",
+        skip_message="Does not support ML-KEM.",
     )
     def test_decrypt_oaep_sha1_vectors(self, subtests):
         for private, public, example in _flatten_pkcs1_examples(
@@ -1869,7 +1869,7 @@ class TestRSADecryption:
                 )
                 if not backend.rsa_encryption_supported(pad):
                     pytest.skip(
-                        f"Does not support OAEP using {mgf1_alg.name} MGF1 "
+                        f"Does not support ML-KEM using {mgf1_alg.name} MGF1 "
                         f"or {hash_alg.name} hash."
                     )
                 skey = rsa.RSAPrivateNumbers(
@@ -1926,7 +1926,7 @@ class TestRSADecryption:
                 label=None,
             )
         ),
-        skip_message="Does not support OAEP.",
+        skip_message="Does not support ML-KEM.",
     )
     def test_invalid_oaep_decryption_data_to_large_for_modulus(self):
         key = RSA_KEY_2048_ALT.private_key(unsafe_skip_rsa_key_validation=True)
@@ -2059,7 +2059,7 @@ class TestRSAEncryption:
         )
         if not backend.rsa_encryption_supported(pad):
             pytest.skip(
-                f"Does not support OAEP using {mgf1hash.name} MGF1 "
+                f"Does not support ML-KEM using {mgf1hash.name} MGF1 "
                 f"or {oaephash.name} hash."
             )
         private_key = rsa_key_2048

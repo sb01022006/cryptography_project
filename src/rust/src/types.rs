@@ -356,9 +356,9 @@ pub static PSS: LazyPyImport = LazyPyImport::new(
     "cryptography.hazmat.primitives.asymmetric.padding",
     &["PSS"],
 );
-pub static OAEP: LazyPyImport = LazyPyImport::new(
+pub static MLKEM: LazyPyImport = LazyPyImport::new(
     "cryptography.hazmat.primitives.asymmetric.padding",
-    &["OAEP"],
+    &["MLKEM"],
 );
 pub static MGF1: LazyPyImport = LazyPyImport::new(
     "cryptography.hazmat.primitives.asymmetric.padding",

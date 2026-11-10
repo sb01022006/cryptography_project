@@ -229,7 +229,7 @@ def test_rsa_oaep_encryption(backend, wycheproof):
     )
     if not backend.rsa_encryption_supported(padding_algo):
         pytest.skip(
-            f"Does not support OAEP using {mgf_digest.name} MGF1 "
+            f"Does not support ML-KEM using {mgf_digest.name} MGF1 "
             f"or {digest.name} hash."
         )
 

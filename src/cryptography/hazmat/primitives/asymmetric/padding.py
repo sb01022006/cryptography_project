@@ -113,9 +113,6 @@ class MLKEM(AsymmetricPadding):
         return self._mgf
 
 
-OAEP = MLKEM
-
-
 class MGF(metaclass=abc.ABCMeta):
     _algorithm: hashes.HashAlgorithm
 

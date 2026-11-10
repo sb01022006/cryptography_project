@@ -12,7 +12,7 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric import utils as asym_utils
 from cryptography.hazmat.primitives.asymmetric.padding import (
     MGF1,
-    OAEP,
+    MLKEM,
     PSS,
     PKCS1v15,
 )
@@ -164,7 +164,7 @@ class Backend:
     def _consume_errors(self) -> list[rust_openssl.OpenSSLError]:
         return rust_openssl.capture_error_stack()
 
-    def _oaep_hash_supported(self, algorithm: hashes.HashAlgorithm) -> bool:
+    def _mlkem_hash_supported(self, algorithm: hashes.HashAlgorithm) -> bool:
         if self._fips_enabled and isinstance(algorithm, hashes.SHA1):
             return False
 
@@ -194,10 +194,14 @@ class Backend:
             ):
                 return False
             return self.hash_supported(padding._mgf._algorithm)
-        elif isinstance(padding, OAEP) and isinstance(padding._mgf, MGF1):
-            return self._oaep_hash_supported(
+        elif (
+            isinstance(padding, MLKEM)
+            and isinstance(padding._mgf, MGF1)
+            and padding._algorithm is not None
+        ):
+            return self._mlkem_hash_supported(
                 padding._mgf._algorithm
-            ) and self._oaep_hash_supported(padding._algorithm)
+            ) and self._mlkem_hash_supported(padding._algorithm)
         else:
             return False
 

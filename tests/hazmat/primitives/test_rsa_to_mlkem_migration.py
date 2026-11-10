@@ -11,8 +11,8 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
 
-class TestRSAOAEPToMLKEMMigration:
-    def test_oaep_quantum_vulnerability_metadata(self) -> None:
+class TestRSAToMLKEMMigration:
+    def test_mlkem_quantum_vulnerability_metadata(self) -> None:
         assert hasattr(padding.MLKEM, "is_quantum_safe")
         assert padding.MLKEM.is_quantum_safe is False
 

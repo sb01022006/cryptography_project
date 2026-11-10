@@ -137,7 +137,7 @@ class TestOpenSSLRSA:
             is True
         )
 
-    def test_rsa_padding_supported_oaep(self):
+    def test_rsa_padding_supported_mlkem(self):
         assert (
             backend.rsa_padding_supported(
                 padding.MLKEM(
@@ -149,7 +149,7 @@ class TestOpenSSLRSA:
             is True
         )
 
-    def test_rsa_padding_supported_oaep_sha2_combinations(self):
+    def test_rsa_padding_supported_mlkem_sha2_combinations(self):
         hashalgs = [
             hashes.SHA1(),
             hashes.SHA224(),
@@ -157,10 +157,10 @@ class TestOpenSSLRSA:
             hashes.SHA384(),
             hashes.SHA512(),
         ]
-        for mgf1alg, oaepalg in itertools.product(hashalgs, hashalgs):
+        for mgf1alg, kemalg in itertools.product(hashalgs, hashalgs):
             if backend._fips_enabled and (
                 isinstance(mgf1alg, hashes.SHA1)
-                or isinstance(oaepalg, hashes.SHA1)
+                or isinstance(kemalg, hashes.SHA1)
             ):
                 continue
 
@@ -168,7 +168,7 @@ class TestOpenSSLRSA:
                 backend.rsa_padding_supported(
                     padding.MLKEM(
                         mgf=padding.MGF1(algorithm=mgf1alg),
-                        algorithm=oaepalg,
+                        algorithm=kemalg,
                         label=None,
                     ),
                 )

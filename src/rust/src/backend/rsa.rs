@@ -79,7 +79,7 @@ fn generate_private_key(
     Ok(RsaPrivateKey { pkey })
 }
 
-fn oaep_hash_supported(md: &openssl::hash::MessageDigest) -> bool {
+fn mlkem_hash_supported(md: &openssl::hash::MessageDigest) -> bool {
     md == &openssl::hash::MessageDigest::sha1()
         || md == &openssl::hash::MessageDigest::sha224()
         || md == &openssl::hash::MessageDigest::sha256()
@@ -102,7 +102,7 @@ fn setup_encryption_ctx(
 
     let padding_enum = if padding.is_instance(&types::PKCS1V15.get(py)?)? {
         openssl::rsa::Padding::PKCS1
-    } else if padding.is_instance(&types::OAEP.get(py)?)? {
+    } else if padding.is_instance(&types::MLKEM.get(py)?)? {
         if !padding
             .getattr(pyo3::intern!(py, "_mgf"))?
             .is_instance(&types::MGF1.get(py)?)?
@@ -137,12 +137,12 @@ fn setup_encryption_ctx(
                 .getattr(pyo3::intern!(py, "_mgf"))?
                 .getattr(pyo3::intern!(py, "_algorithm"))?,
         )?;
-        let oaep_md = hashes::message_digest_from_algorithm(
+        let kem_md = hashes::message_digest_from_algorithm(
             py,
             &padding.getattr(pyo3::intern!(py, "_algorithm"))?,
         )?;
 
-        if !oaep_hash_supported(&mgf1_md) || !oaep_hash_supported(&oaep_md) {
+        if !mlkem_hash_supported(&mgf1_md) || !mlkem_hash_supported(&kem_md) {
             return Err(CryptographyError::from(
                 exceptions::UnsupportedAlgorithm::new_err((
                     "This combination of padding and hash algorithm is not supported",
@@ -152,7 +152,7 @@ fn setup_encryption_ctx(
         }
 
         ctx.set_rsa_mgf1_md(openssl::md::Md::from_nid(mgf1_md.type_()).unwrap())?;
-        ctx.set_rsa_oaep_md(openssl::md::Md::from_nid(oaep_md.type_()).unwrap())?;
+        ctx.set_rsa_oaep_md(openssl::md::Md::from_nid(kem_md.type_()).unwrap())?;
 
         if let Some(label) = padding
             .getattr(pyo3::intern!(py, "_label"))?
