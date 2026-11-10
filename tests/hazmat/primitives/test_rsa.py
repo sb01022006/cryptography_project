@@ -305,7 +305,7 @@ class TestRSA:
         assert vector["oaepdigest"] == b"SHA512"
         decrypted = private_key.decrypt(
             binascii.unhexlify(vector["input"]),
-            padding.OAEP(
+            padding.MLKEM(
                 mgf=padding.MGF1(algorithm=hashes.SHA512()),
                 algorithm=hashes.SHA512(),
                 label=binascii.unhexlify(vector["oaeplabel"]),
@@ -324,7 +324,7 @@ class TestRSA:
         private_key = rsa_key_2048
         ct = private_key.public_key().encrypt(
             msg,
-            padding.OAEP(
+            padding.MLKEM(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
                 label=label,
@@ -332,7 +332,7 @@ class TestRSA:
         )
         pt = private_key.decrypt(
             ct,
-            padding.OAEP(
+            padding.MLKEM(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
                 label=label,
@@ -349,7 +349,7 @@ class TestRSA:
         msg = b"test"
         ct = private_key.public_key().encrypt(
             msg,
-            padding.OAEP(
+            padding.MLKEM(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
                 label=enclabel,
@@ -358,7 +358,7 @@ class TestRSA:
         with pytest.raises(ValueError):
             private_key.decrypt(
                 ct,
-                padding.OAEP(
+                padding.MLKEM(
                     mgf=padding.MGF1(algorithm=hashes.SHA256()),
                     algorithm=hashes.SHA256(),
                     label=declabel,
@@ -1657,11 +1657,11 @@ class TestMGF1:
         assert padding.MGF1(hashes.SHA256()) != object()
 
 
-class TestOAEP:
+class TestMLKEM:
     def test_invalid_algorithm(self):
         mgf = padding.MGF1(hashes.SHA256())
         with pytest.raises(TypeError):
-            padding.OAEP(
+            padding.MLKEM(
                 mgf=mgf,
                 algorithm=typing.cast(typing.Any, b""),
                 label=None,
@@ -1670,25 +1670,25 @@ class TestOAEP:
     def test_algorithm_property(self):
         algorithm = hashes.SHA256()
         mgf = padding.MGF1(algorithm)
-        oaep = padding.OAEP(mgf=mgf, algorithm=algorithm, label=None)
+        oaep = padding.MLKEM(mgf=mgf, algorithm=algorithm, label=None)
         assert oaep.algorithm == algorithm
         assert oaep.algorithm == oaep._algorithm
 
     def test_mgf_property(self):
         algorithm = hashes.SHA256()
         mgf = padding.MGF1(algorithm)
-        oaep = padding.OAEP(mgf=mgf, algorithm=algorithm, label=None)
+        oaep = padding.MLKEM(mgf=mgf, algorithm=algorithm, label=None)
         assert oaep.mgf == mgf
         assert oaep.mgf == oaep._mgf
 
     @pytest.mark.parametrize("label", [None, b"", b"label"])
     def test_eq(self, label):
-        oaep1 = padding.OAEP(
+        oaep1 = padding.MLKEM(
             mgf=padding.MGF1(hashes.SHA256()),
             algorithm=hashes.SHA256(),
             label=label,
         )
-        oaep2 = padding.OAEP(
+        oaep2 = padding.MLKEM(
             mgf=padding.MGF1(hashes.SHA256()),
             algorithm=hashes.SHA256(),
             label=label,
@@ -1696,40 +1696,40 @@ class TestOAEP:
         assert oaep1 == oaep2
 
     def test_ne_different_mgf(self):
-        assert padding.OAEP(
+        assert padding.MLKEM(
             mgf=padding.MGF1(hashes.SHA256()),
             algorithm=hashes.SHA256(),
             label=None,
-        ) != padding.OAEP(
+        ) != padding.MLKEM(
             mgf=padding.MGF1(hashes.SHA512()),
             algorithm=hashes.SHA256(),
             label=None,
         )
 
     def test_ne_different_algorithm(self):
-        assert padding.OAEP(
+        assert padding.MLKEM(
             mgf=padding.MGF1(hashes.SHA256()),
             algorithm=hashes.SHA256(),
             label=None,
-        ) != padding.OAEP(
+        ) != padding.MLKEM(
             mgf=padding.MGF1(hashes.SHA256()),
             algorithm=hashes.SHA512(),
             label=None,
         )
 
     def test_ne_different_label(self):
-        assert padding.OAEP(
+        assert padding.MLKEM(
             mgf=padding.MGF1(hashes.SHA256()),
             algorithm=hashes.SHA256(),
             label=None,
-        ) != padding.OAEP(
+        ) != padding.MLKEM(
             mgf=padding.MGF1(hashes.SHA256()),
             algorithm=hashes.SHA256(),
             label=b"",
         )
 
     def test_ne(self):
-        oaep = padding.OAEP(
+        oaep = padding.MLKEM(
             mgf=padding.MGF1(hashes.SHA256()),
             algorithm=hashes.SHA256(),
             label=None,
@@ -1819,7 +1819,7 @@ class TestRSADecryption:
 
     @pytest.mark.supported(
         only_if=lambda backend: backend.rsa_encryption_supported(
-            padding.OAEP(
+            padding.MLKEM(
                 mgf=padding.MGF1(algorithm=hashes.SHA1()),
                 algorithm=hashes.SHA1(),
                 label=None,
@@ -1850,7 +1850,7 @@ class TestRSADecryption:
                 ).private_key(unsafe_skip_rsa_key_validation=True)
                 message = skey.decrypt(
                     binascii.unhexlify(example["encryption"]),
-                    padding.OAEP(
+                    padding.MLKEM(
                         mgf=padding.MGF1(algorithm=hashes.SHA1()),
                         algorithm=hashes.SHA1(),
                         label=None,
@@ -1862,7 +1862,7 @@ class TestRSADecryption:
         vectors = _build_oaep_sha2_vectors()
         for private, public, example, mgf1_alg, hash_alg in vectors:
             with subtests.test():
-                pad = padding.OAEP(
+                pad = padding.MLKEM(
                     mgf=padding.MGF1(algorithm=mgf1_alg),
                     algorithm=hash_alg,
                     label=None,
@@ -1897,7 +1897,7 @@ class TestRSADecryption:
 
         ciphertext = private_key.public_key().encrypt(
             b"secure data",
-            padding.OAEP(
+            padding.MLKEM(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
                 label=None,
@@ -1911,7 +1911,7 @@ class TestRSADecryption:
         with pytest.raises(ValueError):
             private_key_alt.decrypt(
                 ciphertext,
-                padding.OAEP(
+                padding.MLKEM(
                     mgf=padding.MGF1(algorithm=hashes.SHA256()),
                     algorithm=hashes.SHA256(),
                     label=None,
@@ -1920,7 +1920,7 @@ class TestRSADecryption:
 
     @pytest.mark.supported(
         only_if=lambda backend: backend.rsa_encryption_supported(
-            padding.OAEP(
+            padding.MLKEM(
                 mgf=padding.MGF1(algorithm=hashes.SHA1()),
                 algorithm=hashes.SHA1(),
                 label=None,
@@ -1949,7 +1949,7 @@ class TestRSADecryption:
         with pytest.raises(ValueError):
             key.decrypt(
                 ciphertext,
-                padding.OAEP(
+                padding.MLKEM(
                     algorithm=hashes.SHA1(),
                     mgf=padding.MGF1(hashes.SHA1()),
                     label=None,
@@ -1961,7 +1961,7 @@ class TestRSADecryption:
         with raises_unsupported_algorithm(_Reasons.UNSUPPORTED_HASH):
             private_key.decrypt(
                 b"0" * 256,
-                padding.OAEP(
+                padding.MLKEM(
                     mgf=padding.MGF1(DummyHashAlgorithm()),
                     algorithm=hashes.SHA256(),
                     label=None,
@@ -1970,7 +1970,7 @@ class TestRSADecryption:
         with raises_unsupported_algorithm(_Reasons.UNSUPPORTED_HASH):
             private_key.decrypt(
                 b"0" * 256,
-                padding.OAEP(
+                padding.MLKEM(
                     mgf=padding.MGF1(hashes.SHA256()),
                     algorithm=DummyHashAlgorithm(),
                     label=None,
@@ -1982,7 +1982,7 @@ class TestRSADecryption:
         with raises_unsupported_algorithm(_Reasons.UNSUPPORTED_MGF):
             private_key.decrypt(
                 b"0" * 256,
-                padding.OAEP(
+                padding.MLKEM(
                     mgf=DummyMGF(),
                     algorithm=hashes.SHA256(),
                     label=None,
@@ -2008,7 +2008,7 @@ class TestRSAEncryption:
                     RSA_KEY_2048,
                 ),
                 [
-                    padding.OAEP(
+                    padding.MLKEM(
                         mgf=padding.MGF1(algorithm=hashes.SHA256()),
                         algorithm=hashes.SHA256(),
                         label=None,
@@ -2052,7 +2052,7 @@ class TestRSAEncryption:
     def test_rsa_encrypt_oaep_sha2(
         self, rsa_key_2048: rsa.RSAPrivateKey, mgf1hash, oaephash, backend
     ):
-        pad = padding.OAEP(
+        pad = padding.MLKEM(
             mgf=padding.MGF1(algorithm=mgf1hash),
             algorithm=oaephash,
             label=None,
@@ -2125,7 +2125,7 @@ class TestRSAEncryption:
                     RSA_KEY_2048,
                 ),
                 (
-                    padding.OAEP(
+                    padding.MLKEM(
                         mgf=padding.MGF1(algorithm=hashes.SHA256()),
                         algorithm=hashes.SHA256(),
                         label=None,
@@ -2178,7 +2178,7 @@ class TestRSAEncryption:
         with raises_unsupported_algorithm(_Reasons.UNSUPPORTED_MGF):
             public_key.encrypt(
                 b"ciphertext",
-                padding.OAEP(
+                padding.MLKEM(
                     mgf=DummyMGF(),
                     algorithm=hashes.SHA256(),
                     label=None,

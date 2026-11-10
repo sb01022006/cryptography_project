@@ -140,7 +140,7 @@ class TestOpenSSLRSA:
     def test_rsa_padding_supported_oaep(self):
         assert (
             backend.rsa_padding_supported(
-                padding.OAEP(
+                padding.MLKEM(
                     mgf=padding.MGF1(algorithm=hashes.SHA256()),
                     algorithm=hashes.SHA256(),
                     label=None,
@@ -166,7 +166,7 @@ class TestOpenSSLRSA:
 
             assert (
                 backend.rsa_padding_supported(
-                    padding.OAEP(
+                    padding.MLKEM(
                         mgf=padding.MGF1(algorithm=mgf1alg),
                         algorithm=oaepalg,
                         label=None,
@@ -178,7 +178,7 @@ class TestOpenSSLRSA:
     def test_rsa_padding_unsupported_mgf(self):
         assert (
             backend.rsa_padding_supported(
-                padding.OAEP(
+                padding.MLKEM(
                     mgf=DummyMGF(),
                     algorithm=hashes.SHA1(),
                     label=None,
@@ -198,7 +198,7 @@ class TestOpenSSLRSA:
         with raises_unsupported_algorithm(_Reasons.UNSUPPORTED_PADDING):
             rsa_key_2048.decrypt(
                 b"0" * 256,
-                padding.OAEP(
+                padding.MLKEM(
                     mgf=padding.MGF1(algorithm=hashes.MD5()),
                     algorithm=hashes.MD5(),
                     label=None,

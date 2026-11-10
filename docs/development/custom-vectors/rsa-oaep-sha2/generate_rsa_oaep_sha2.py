@@ -66,7 +66,7 @@ def build_vectors(mgf1alg, hashalg, filename):
         for example in examples:
             message = vectorkey.decrypt(
                 binascii.unhexlify(example["encryption"]),
-                padding.OAEP(
+                padding.MLKEM(
                     mgf=padding.MGF1(algorithm=hashes.SHA1()),
                     algorithm=hashes.SHA1(),
                     label=None,
@@ -75,7 +75,7 @@ def build_vectors(mgf1alg, hashalg, filename):
             assert message == binascii.unhexlify(example["message"])
             ct = pkey.encrypt(
                 message,
-                padding.OAEP(
+                padding.MLKEM(
                     mgf=padding.MGF1(algorithm=mgf1alg),
                     algorithm=hashalg,
                     label=None,

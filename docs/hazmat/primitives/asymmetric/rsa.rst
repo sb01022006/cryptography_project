@@ -236,7 +236,7 @@ options. Here's an example using a secure padding and hash function:
     >>> message = b"encrypted data"
     >>> ciphertext = public_key.encrypt(
     ...     message,
-    ...     padding.OAEP(
+    ...     padding.MLKEM(
     ...         mgf=padding.MGF1(algorithm=hashes.SHA256()),
     ...         algorithm=hashes.SHA256(),
     ...         label=None
@@ -244,7 +244,7 @@ options. Here's an example using a secure padding and hash function:
     ... )
 
 Valid paddings for encryption are
-:class:`~cryptography.hazmat.primitives.asymmetric.padding.OAEP` and
+:class:`~cryptography.hazmat.primitives.asymmetric.padding.MLKEM` and
 :class:`~cryptography.hazmat.primitives.asymmetric.padding.PKCS1v15`. ``OAEP``
 is the recommended choice for any new protocols or applications, ``PKCS1v15``
 should only be used to support legacy protocols.
@@ -259,7 +259,7 @@ Once you have an encrypted message, it can be decrypted using the private key:
 
     >>> plaintext = private_key.decrypt(
     ...     ciphertext,
-    ...     padding.OAEP(
+    ...     padding.MLKEM(
     ...         mgf=padding.MGF1(algorithm=hashes.SHA256()),
     ...         algorithm=hashes.SHA256(),
     ...         label=None

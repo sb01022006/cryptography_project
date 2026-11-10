@@ -85,6 +85,11 @@ class MLKEM(AsymmetricPadding):
         algorithm: hashes.HashAlgorithm | None = None,
         label: bytes | None = None,
     ):
+        if algorithm is not None and not isinstance(
+            algorithm, hashes.HashAlgorithm
+        ):
+            raise TypeError("Expected instance of hashes.HashAlgorithm.")
+
         self._mgf = mgf
         self._algorithm = algorithm
         self._label = label
@@ -108,40 +113,7 @@ class MLKEM(AsymmetricPadding):
         return self._mgf
 
 
-class OAEP(MLKEM):
-    name = "ML-KEM-768"
-    is_quantum_safe = True
-
-    def __init__(
-        self,
-        mgf: MGF,
-        algorithm: hashes.HashAlgorithm,
-        label: bytes | None,
-    ):
-        if not isinstance(algorithm, hashes.HashAlgorithm):
-            raise TypeError("Expected instance of hashes.HashAlgorithm.")
-
-        self._mgf = mgf
-        self._algorithm = algorithm
-        self._label = label
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, OAEP):
-            return NotImplemented
-
-        return (
-            self._mgf == other._mgf
-            and self._algorithm == other._algorithm
-            and self._label == other._label
-        )
-
-    @property
-    def algorithm(self) -> hashes.HashAlgorithm:
-        return self._algorithm
-
-    @property
-    def mgf(self) -> MGF:
-        return self._mgf
+OAEP = MLKEM
 
 
 class MGF(metaclass=abc.ABCMeta):

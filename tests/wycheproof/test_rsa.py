@@ -222,7 +222,7 @@ def test_rsa_oaep_encryption(backend, wycheproof):
     mgf_digest = _DIGESTS[wycheproof.testgroup["mgfSha"]]
     assert digest is not None
     assert mgf_digest is not None
-    padding_algo = padding.OAEP(
+    padding_algo = padding.MLKEM(
         mgf=padding.MGF1(algorithm=mgf_digest),
         algorithm=digest,
         label=binascii.unhexlify(wycheproof.testcase["label"]),

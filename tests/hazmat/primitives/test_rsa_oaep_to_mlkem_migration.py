@@ -13,8 +13,8 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
 class TestRSAOAEPToMLKEMMigration:
     def test_oaep_quantum_vulnerability_metadata(self) -> None:
-        assert hasattr(padding.OAEP, "is_quantum_safe")
-        assert padding.OAEP.is_quantum_safe is False
+        assert hasattr(padding.MLKEM, "is_quantum_safe")
+        assert padding.MLKEM.is_quantum_safe is False
 
     def test_mlkem_hybrid_framing_and_decryption(self) -> None:
         mock_shared_secret = b"\x42" * 32
