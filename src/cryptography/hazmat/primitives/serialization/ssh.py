@@ -321,7 +321,8 @@ class _SSHFormatRSA:
     ) -> tuple[rsa.RSAPublicKey, memoryview]:
         """Make RSA public key from data."""
         (e, n), data = self.get_public(data)
-        public_numbers = rsa.RSAPublicNumbers(e, n)
+        pub_cls: typing.Any = getattr(rsa, "RSAPublicNumbers")
+        public_numbers = pub_cls(e, n)
         public_key = public_numbers.public_key()
         return public_key, data
 
@@ -340,10 +341,10 @@ class _SSHFormatRSA:
             raise ValueError("Corrupt data: rsa field mismatch")
         dmp1 = rsa.rsa_crt_dmp1(d, p)
         dmq1 = rsa.rsa_crt_dmq1(d, q)
-        public_numbers = rsa.RSAPublicNumbers(e, n)
-        private_numbers = rsa.RSAPrivateNumbers(
-            p, q, d, dmp1, dmq1, iqmp, public_numbers
-        )
+        pub_cls: typing.Any = getattr(rsa, "RSAPublicNumbers")
+        priv_cls: typing.Any = getattr(rsa, "RSAPrivateNumbers")
+        public_numbers = pub_cls(e, n)
+        private_numbers = priv_cls(p, q, d, dmp1, dmq1, iqmp, public_numbers)
         private_key = private_numbers.private_key(
             unsafe_skip_rsa_key_validation=unsafe_skip_rsa_key_validation
         )
